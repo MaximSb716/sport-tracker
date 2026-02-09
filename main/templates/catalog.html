@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'catalog_cards.css' %}">
+    <link rel="stylesheet" href="{% static 'header.css' %}">
+    <title>Каталог</title>
+    <link rel="icon" href="{% static 'img/icon.svg' %}" type="image/svg+xml">
+    <style>
+      .wrapper {
+        width: auto;
+        height: 300px;
+      }
+      .exmpl {
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .exmpl img {
+        height: auto;
+        width: 100%;
+      }
+    </style>
+</head>
+{% include 'header.html' %}
+<body>
+    <!-- Форма фильтрации -->
+    <div class="filter-container">
+        <form method="get" action="{% url 'catalog' %}" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="{{ filter_form.search.id_for_label }}">{{ filter_form.search.label }}</label>
+                    {{ filter_form.search }}
+                </div>
+                
+                <div class="filter-group">
+                    <label for="{{ filter_form.type_of_inventory.id_for_label }}">{{ filter_form.type_of_inventory.label }}</label>
+                    {{ filter_form.type_of_inventory }}
+                </div>
+                
+                <div class="filter-group">
+                    <label for="{{ filter_form.min_quantity.id_for_label }}">{{ filter_form.min_quantity.label }}</label>
+                    {{ filter_form.min_quantity }}
+                </div>
+                
+                <div class="filter-group">
+                    <label for="{{ filter_form.max_quantity.id_for_label }}">{{ filter_form.max_quantity.label }}</label>
+                    {{ filter_form.max_quantity }}
+                </div>
+                
+                <div class="filter-group">
+                    <label for="{{ filter_form.sort_by.id_for_label }}">{{ filter_form.sort_by.label }}</label>
+                    {{ filter_form.sort_by }}
+                </div>
+            </div>
+            
+            <div class="filter-actions">
+                <button type="submit" class="filter-button filter-button-primary">Применить фильтры</button>
+                <a href="{% url 'catalog' %}" class="filter-button filter-button-secondary">Сбросить</a>
+            </div>
+            
+            {% if filter_form.errors %}
+                <div class="filter-errors">
+                    {% for field, errors in filter_form.errors.items %}
+                        {% for error in errors %}
+                            <div class="error-message">{{ error }}</div>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </form>
+    </div>
+    
+    <!-- Результаты фильтрации -->
+    {% if data %}
+        <div class="results-info">
+            Найдено позиций: {{ data|length }}
+        </div>
+    {% endif %}
+    
+    <!-- Каталог инвентаря -->
+    <div class="container">
+        {% if data %}
+            {% for category in data %}
+            <div class="item">
+              <div class="wrapper exmpl">
+                  {% if category.url_to_header %}
+                      <img src="{{ category.url_to_header }}" alt="Изображение инвентаря">
+                  {% else %}
+                      <div style="background-color: #e0e0e0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #999;">
+                          Нет изображения
+                      </div>
+                  {% endif %}
+              </div>
+              <div class="card">
+                <h3>Наименование: {{category.category.name}}</h3>
+                <p>{{category.category.questions_number }} шт.</p>
+                 {% if category.category.type_of_inventory == "one" %}
+                    <p>Состояние: Новый</p>
+                  {% elif category.category.type_of_inventory == "multi" %}
+                    <p>Состояние: Использованный</p>
+                  {% else %}
+                    <p>Состояние: Сломанный</p>
+                  {% endif %}
+                  {% csrf_token %}
+                  {% if is_admin %}
+                      <a class="card_link" href="{% url 'inventory'%}?id={{category.category.id}}">Изменить</a>
+                  {% elif is_auth %}
+                      <a class="card_link" href="{% url 'add_inventory'%}?id={{category.category.id}}">Добавить в заявку</a>
+                  {% else %}
+                      <a class="card_link" href="{% url 'sign_in' %}">Чтобы сделать запрос, зайдите в аккаунт</a>
+                  {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <p>По заданным критериям ничего не найдено.</p>
+                <a href="{% url 'catalog' %}" class="filter-button filter-button-secondary">Показать все</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+<footer>
+</footer>
+</html>
