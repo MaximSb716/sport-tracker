@@ -85,6 +85,8 @@ sport-tracker-v2.0/
 ├── requirements.txt    # Файл со списком зависимостей проекта (устанавливается pip install -r requirements.txt)
 └── README.md           # Файл с описанием проекта (цель, инструкции по установке и запуску и т.д.)
 ```
+## 🤝 Видео
+https://m.vkvideo.ru/video642698898_456239025
 
 ## 🤝 Автор
 - **Сбродов Максим Александрович** - [GitHub](https://github.com/MaximSb716)
